@@ -8,10 +8,12 @@
   --accent: #7c9eff;
   --accent-dim: #3d4a72;
   --danger: #ff6b6b;
+  --success: #6fd08c;
   --radius: 14px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   color-scheme: dark;
+  --transition: all 0.2s ease-out;
 }
 
 :root[data-theme="light"] {
@@ -23,6 +25,7 @@
   --text-dim: #6b7280;
   --accent: #4763d6;
   --accent-dim: #dce3fb;
+  --success: #2d9c5c;
   color-scheme: light;
 }
 
@@ -44,10 +47,17 @@ body {
 
 button {
   font-family: inherit;
+  transition: var(--transition);
 }
 
 a {
   color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  opacity: 0.8;
 }
 
 .app-shell {
@@ -86,9 +96,17 @@ a {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  text-align: left;
+  transition: var(--transition);
+}
+.new-chat-btn:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+.new-chat-btn:active {
+  transform: scale(0.98);
+}
+
+.new-chat-btn {
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -105,13 +123,16 @@ a {
 }
 
 .conversation-item {
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
+  transition: var(--transition);
+}
+.conversation-item:hover {
+  background: var(--bg-composer);
+  color: var(--text);
+}
+.conversation-item.active {
+  background: var(--accent-dim);
+  color: var(--text);
+  font-weight: 500;
   text-overflow: ellipsis;
   display: flex;
   justify-content: space-between;
@@ -213,10 +234,18 @@ a {
 }
 
 .suggestion-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+  transition: var(--transition);
+}
+.suggestion-chip:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.suggestion-chip:active {
+  transform: scale(0.95);
+}
+
+.suggestion-chips {
   margin-top: 16px;
   max-width: 480px;
 }
@@ -242,14 +271,17 @@ a {
   margin: 0 auto;
 }
 .message-row.user {
-  justify-content: flex-end;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-.message-bubble {
-  padding: 12px 16px;
-  border-radius: 16px;
-  max-width: 85%;
-  line-height: 1.5;
-  font-size: 15px;
+.message-row.assistant .message-bubble {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.message-bubble.blocked {
+  border-color: var(--danger);
+  background: rgba(255, 107, 107, 0.05);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -294,7 +326,7 @@ a {
   color: #fff;
   border-radius: 6px;
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -363,10 +395,22 @@ a {
   flex: 1;
   border: none;
   background: transparent;
-  color: var(--text);
-  font-size: 15px;
-  resize: none;
-  outline: none;
+  transition: var(--transition);
+  font-size: 18px;
+}
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(124, 158, 255, 0.4);
+}
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.composer-inner textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  transition: var(--transition);
+  font-size: 18px;
   max-height: 160px;
   font-family: inherit;
   padding: 8px 0;

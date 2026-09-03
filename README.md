@@ -1,10 +1,10 @@
 # Vera
 
-Vera is a private, personal AI assistant. V0.1 is a deliberately simple,
-polished first version: a single Node.js web application you can run with
-one command, with fifteen built-in capabilities and a dedicated security
-layer that blocks sensitive information before it ever reaches the AI
-provider.
+Vera is a private, personal AI assistant. V0.1.1 is a stable, polished release
+with enhanced reliability, better error recovery, and improved UX. A single
+Node.js web application you can run with one command, with **17 built-in
+capabilities** (including new Timezone support) and a dedicated security layer
+that blocks sensitive information before it ever reaches the AI provider.
 
 Vera is **local-first, not fully local**: your data (conversations, memory,
 notes, tasks, calendar, files) lives in a local SQLite database and a local
@@ -23,6 +23,8 @@ Ask Vera things like:
 - "Set a 10 minute timer."
 - "What's (3 + 4) * 2 / 7?"
 - "How's the server doing?"
+- "What time is it in Tokyo?"
+- "Convert 3pm EST to London time."
 
 Vera decides which capability (if any) it needs and uses it automatically —
 you don't pick tools from a menu.
@@ -79,7 +81,7 @@ defaults):
 | Variable | Purpose |
 |---|---|
 | `GEMINI_API_KEY` | Your Gemini API key. Required for AI responses. |
-| `GEMINI_MODEL` | Gemini model name. Defaults to `gemini-1.5-flash`. |
+| `GEMINI_MODEL` | Gemini model name. Defaults to `gemini-2.5-flash`. |
 | `PORT` | Port the server listens on. |
 | `DATABASE_PATH` | Where the SQLite database file lives. |
 | `WORKSPACE_PATH` | Sandboxed folder the Files/Notes/Code capabilities can access. |
@@ -92,10 +94,10 @@ Without `GEMINI_API_KEY` set, Vera still runs — the chat, database, and
 capability endpoints all work — but it will tell you AI responses aren't
 available yet instead of erroring.
 
-## The 15 built-in capabilities
+## The 17 built-in capabilities
 
 Memory · Calendar · Reminders · Web Search · Files · Notes · Tasks ·
-Weather · Timer/Stopwatch · Calculator/Unit Conversion · System Monitor ·
+Weather · Timer/Stopwatch · Calculator/Unit Conversion · Timezone Conversion · System Monitor ·
 Docker/Process Control (read-only, with a strict restart whitelist) ·
 Network · Code Assistant (never executes code) · Automation (cron-scheduled
 prompts).
@@ -203,7 +205,7 @@ vera/
 ├── src/
 │   ├── server/
 │   │   ├── ai/            # Gemini wrapper, chat engine, context manager
-│   │   ├── capabilities/  # the 15 built-in capabilities
+│   │   ├── capabilities/  # the 17 built-in capabilities
 │   │   ├── database/      # SQLite connection + migrations
 │   │   ├── routes/        # Express routes
 │   │   └── security/      # sensitive-info filter, workspace sandboxing

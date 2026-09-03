@@ -1,4 +1,5 @@
 import { useRef, useState, KeyboardEvent } from "react";
+import { isModifierEnter } from "../keyboard.js";
 
 interface Props {
   onSend: (text: string) => void;
@@ -18,7 +19,8 @@ export function Composer({ onSend, disabled }: Props) {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    // Send on Enter (no modifiers) or Cmd+Enter
+    if ((e.key === "Enter" && !e.shiftKey && !e.metaKey && !e.ctrlKey) || isModifierEnter(e)) {
       e.preventDefault();
       handleSend();
     }
@@ -39,11 +41,18 @@ export function Composer({ onSend, disabled }: Props) {
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Ask Vera..."
+          placeholder="Ask Vera... (Enter to send, Shift+Enter for new line)"
           rows={1}
           autoFocus
+          title="Type your message here. Press Enter to send, Shift+Enter for a new line, Cmd/Ctrl+Enter as alternative send."
         />
-        <button className="send-btn" onClick={handleSend} disabled={disabled || !value.trim()} aria-label="Send">
+        <button
+          className="send-btn"
+          onClick={handleSend}
+          disabled={disabled || !value.trim()}
+          aria-label="Send message (Enter)"
+          title="Send message (Enter or Cmd+Enter)"
+        >
           ➤
         </button>
       </div>

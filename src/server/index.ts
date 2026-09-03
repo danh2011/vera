@@ -4,9 +4,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "./env.js";
 import "./database/db.js"; // runs migrations on import
-import { registerAllCapabilities } from "./capabilities/index.js";
+import { registerAllCapabilities, validateCapabilities } from "./capabilities/index.js";
 import { startReminderScheduler } from "./capabilities/reminders.js";
 import { loadAutomationsOnStartup } from "./capabilities/automation.js";
+import { checkGeminiHealth } from "./ai/gemini.js";
 import { chatRouter } from "./routes/chat.js";
 import { conversationsRouter } from "./routes/conversations.js";
 import { dataRouter } from "./routes/data.js";
@@ -16,9 +17,34 @@ import { versionRouter } from "./routes/version.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-registerAllCapabilities();
-startReminderScheduler();
-loadAutomationsOnStartup();
+// --- Startup initialization and health checks ---
+async function startup() {
+  // Register capabilities and validate them
+  registerAllCapabilities();
+  const validationErrors = validateCapabilities();
+  if (validationErrors.length > 0) {
+    console.warn("[vera] validation warnings:");
+    validationErrors.forEach((err) => console.warn(`  - ${err}`));
+  }
+
+  // Start background schedulers
+  startReminderScheduler();
+  loadAutomationsOnStartup();
+
+  // Check AI provider health
+  if (env.GEMINI_API_KEY) {
+    const geminiHealth = await checkGeminiHealth();
+    if (geminiHealth) {
+      console.log("[vera] Gemini API is reachable");
+    } else {
+      console.warn("[vera] warning: Gemini API is not reachable or API key may be invalid");
+    }
+  } else {
+    console.warn("[vera] GEMINI_API_KEY not configured - AI features disabled");
+  }
+}
+
+await startup();
 
 const app = express();
 app.use(cors());

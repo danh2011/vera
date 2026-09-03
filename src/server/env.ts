@@ -11,7 +11,7 @@ export const env = {
   PORT: Number(process.env.PORT ?? 3001),
 
   GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",
-  GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-1.5-flash",
+  GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
 
   DATABASE_PATH: path.resolve(process.cwd(), process.env.DATABASE_PATH ?? "./data/vera.db"),
   WORKSPACE_PATH: path.resolve(process.cwd(), process.env.WORKSPACE_PATH ?? "./data/workspace"),

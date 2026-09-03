@@ -194,7 +194,27 @@ export async function runChatTurn(input: ChatTurnInput): Promise<ChatResponse> {
     };
   } catch (err) {
     console.error("[chatEngine] error:", err);
-    const content = "Something went wrong talking to the AI provider. Please try again in a moment.";
+    let content = "Something went wrong talking to the AI provider. Please try again in a moment.";
+
+    // Provide specific error guidance
+    const errStr = String(err).toLowerCase();
+    if (errStr.includes("api_key") || errStr.includes("unauthenticated") || errStr.includes("401")) {
+      content =
+        "AI provider rejected the request (authentication issue). Check your GEMINI_API_KEY in .env, make sure it's valid, and restart Vera.";
+    } else if (
+      errStr.includes("quota") ||
+      errStr.includes("rate_limit") ||
+      errStr.includes("429") ||
+      errStr.includes("too_many_requests")
+    ) {
+      content = "API rate limit reached. Please wait a few moments and try again.";
+    } else if (errStr.includes("network") || errStr.includes("econnrefused") || errStr.includes("timeout")) {
+      content =
+        "Network error connecting to the AI provider. Check your internet connection and try again in a moment.";
+    } else if (errStr.includes("model") || errStr.includes("404")) {
+      content = `The configured model "${env.GEMINI_MODEL}" is not available. Check your GEMINI_MODEL setting in .env.`;
+    }
+
     const msgId = insertMessage(conversationId, "assistant", content);
     return {
       conversationId,

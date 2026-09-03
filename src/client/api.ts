@@ -14,9 +14,9 @@ export const api = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conversationId, message }),
-    }).then((r) => json<ChatResponse>(r)),
+    }).then((r) => json<ChatResponse>(r)).catch(e => { console.error("[API] sendMessage failed:", e); throw e; }),
 
-  listConversations: () => fetch("/api/conversations").then((r) => json<Conversation[]>(r)),
+  listConversations: () => fetch("/api/conversations").then((r) => json<Conversation[]>(r)).catch(e => { console.error("[API] listConversations failed:", e); throw e; }),
 
   getMessages: (conversationId: string) =>
     fetch(`/api/conversations/${conversationId}/messages`).then((r) => json<ChatMessage[]>(r)),

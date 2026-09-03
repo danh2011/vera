@@ -1,6 +1,6 @@
 {
   "name": "vera",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Vera - a private, local-first personal AI assistant (V0.1)",
