@@ -1,0 +1,30 @@
+# Vera on CasaOS / Docker Compose. Copy .env.example to .env and edit it first.
+services:
+  vera:
+    build: .
+    image: vera:2
+    container_name: vera
+    init: true
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      VERA_DATA_DIR: /data
+      VERA_TRUSTED_PROXY: "true"
+      # Replace with the subnet of the Docker network shared with Nginx Proxy Manager (docker network inspect <name>)
+      VERA_TRUSTED_PROXY_CIDRS: 172.18.0.0/16
+    volumes:
+      - ./data:/data                          # database, encryption key: back this up (docs/database.md)
+      # - /srv/documents:/files:ro            # then set VERA_ALLOWED_FILE_ROOTS=/files
+    ports:
+      - "127.0.0.1:3001:3001"                 # not exposed to the LAN or internet; Nginx Proxy Manager reaches it by network
+    networks: [proxy]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 512m
+networks:
+  proxy:
+    external: true
+    name: nginx-proxy-manager_default         # the network your Nginx Proxy Manager container is on

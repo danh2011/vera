@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-server
+data
+mobile
+.github
+.git
+.env
+.env.*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+secret.key
+tests
+docs

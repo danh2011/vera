@@ -1,0 +1,17 @@
+node_modules
+dist
+mobile/node_modules
+mobile/.expo
+mobile/dist
+mobile/android
+mobile/ios
+.env
+.env.local
+dist-server
+data
+*.db
+*.db-wal
+*.db-shm
+secret.key
+.env.*
+!.env.example
