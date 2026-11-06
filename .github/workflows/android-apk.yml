@@ -1,8 +1,7 @@
 name: Android APK
 
 # Builds the Vera Android app (Expo, in ./mobile) into an installable APK.
-#  - every push / PR that touches the app: checks + a downloadable APK 
-artifact
+#  - every push / PR that touches the app: checks + a downloadable APK artifact
 #  - tag v*  (e.g. v3.0.0): also publishes the APK on a GitHub Release
 #  - "Run workflow" button: choose which CPU architectures to include
 on:
@@ -19,12 +18,9 @@ on:
         type: choice
         default: arm64-v8a
         options:
-          - arm64-v8a                                  # almost every 
-phone made since ~2017 (smallest, fastest)
-          - arm64-v8a,armeabi-v7a                      # plus older 32-bit 
-phones
-          - armeabi-v7a,arm64-v8a,x86,x86_64           # universal, also 
-emulators (largest)
+          - arm64-v8a                                  # almost every phone made since ~2017 (smallest, fastest)
+          - arm64-v8a,armeabi-v7a                      # plus older 32-bit phones
+          - armeabi-v7a,arm64-v8a,x86,x86_64           # universal, also emulators (largest)
 
 permissions:
   contents: read
@@ -60,13 +56,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
-      contents: write   # only used to attach the APK to a release on v* 
-tags
+      contents: write   # only used to attach the APK to a release on v* tags
     env:
       CI: "1"
       ABIS: ${{ inputs.abis || 'arm64-v8a' }}
-      # Used by app.config.ts so each build has a higher versionCode than 
-the last and installs over it.
+      # Used by app.config.ts so each build has a higher versionCode than the last and installs over it.
       VERA_VERSION_CODE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
@@ -82,21 +76,15 @@ the last and installs over it.
           distribution: temurin
           java-version: 17
 
-      # The runner image already ships the Android SDK. Don't reinstall it 
-(android-actions/setup-android
-      # asks sdkmanager for a "tools" package that no longer exists); only 
-accept the licences so Gradle
+      # The runner image already ships the Android SDK. Don't reinstall it (android-actions/setup-android
+      # asks sdkmanager for a "tools" package that no longer exists); only accept the licences so Gradle
       # can download the platform and NDK it needs.
       - name: Accept Android SDK licences
         run: |
-          export 
-ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
-          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager 
--type f 2>/dev/null | sort -r | head -n1)
-          if [ -z "$SDKMANAGER" ]; then echo "::error::sdkmanager not 
-found under $ANDROID_HOME"; exit 1; fi
-          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses > 
-/dev/null || true
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort -r | head -n1)
+          if [ -z "$SDKMANAGER" ]; then echo "::error::sdkmanager not found under $ANDROID_HOME"; exit 1; fi
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses > /dev/null || true
           echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
 
@@ -106,13 +94,11 @@ found under $ANDROID_HOME"; exit 1; fi
 
       - run: npm ci
 
-      # Generates the native android/ project from app.config.ts (it is 
-not checked in).
+      # Generates the native android/ project from app.config.ts (it is not checked in).
       - name: Generate native project
         run: npx expo prebuild --platform android --no-install
 
-      # Optional: sign with your own key. Without these secrets the APK is 
-signed with the debug key:
+      # Optional: sign with your own key. Without these secrets the APK is signed with the debug key:
       # it installs fine, but you should not publish it to a store.
       - name: Restore signing key
         env:
@@ -122,8 +108,7 @@ signed with the debug key:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > 
-"$RUNNER_TEMP/vera-release.keystore"
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/vera-release.keystore"
             {
               echo "VERA_KEYSTORE_PATH=$RUNNER_TEMP/vera-release.keystore"
               echo "VERA_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
@@ -132,15 +117,12 @@ signed with the debug key:
             } >> "$GITHUB_ENV"
             echo "Signing with the release keystore."
           else
-            echo "::notice::No ANDROID_KEYSTORE_BASE64 secret: signing 
-with the debug key."
+            echo "::notice::No ANDROID_KEYSTORE_BASE64 secret: signing with the debug key."
           fi
 
       - name: Build release APK
         working-directory: mobile/android
-        run: ./gradlew assembleRelease --no-daemon --stacktrace 
--PreactNativeArchitectures="$ABIS" -Dorg.gradle.jvmargs="-Xmx4g 
--XX:MaxMetaspaceSize=1g"
+        run: ./gradlew assembleRelease --no-daemon --stacktrace -PreactNativeArchitectures="$ABIS" -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
 
       - name: Name the APK
         id: apk
@@ -150,10 +132,8 @@ with the debug key."
           OUT="vera-${VERSION}-${LABEL}.apk"
           cp android/app/build/outputs/apk/release/app-release.apk "$OUT"
           echo "file=mobile/$OUT" >> "$GITHUB_OUTPUT"
-          echo "### Vera ${VERSION} (build ${{ github.run_number }})" >> 
-"$GITHUB_STEP_SUMMARY"
-          echo "APK: \`$OUT\` ($(du -h "$OUT" | cut -f1)), architectures: 
-\`$ABIS\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Vera ${VERSION} (build ${{ github.run_number }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "APK: \`$OUT\` ($(du -h "$OUT" | cut -f1)), architectures: \`$ABIS\`" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
